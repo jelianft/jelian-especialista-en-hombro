@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jelian FT - Especialista en Hombro</title>
+    <style>
+        :root { --primary: #00d4ff; --dark-bg: #050505; --card-bg: #111; --accent: #00ff88; --danger: #ff4d4d; --text: #eee; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--dark-bg); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 850px; margin: 0 auto; }
+        
+        /* Header */
+        header { text-align: center; padding: 20px 10px; border-bottom: 2px solid var(--primary); margin-bottom: 20px; }
+        header h1 { margin: 0; font-size: 1.8em; letter-spacing: 2px; text-transform: uppercase; }
+        header p { color: var(--primary); font-weight: 800; font-size: 0.85em; margin-top: 5px; }
+
+        /* Inputs */
+        .setup-box { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.75em; color: var(--primary); text-transform: uppercase; font-weight: bold; }
+        
+        input[type="text"], select { 
+            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; 
+            background: #000; color: #fff; font-size: 15px; margin-bottom: 15px; outline: none;
+            box-sizing: border-box;
+        }
+
+        .phase-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .phase-btn { 
+            padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; 
+            color: #888; cursor: pointer; font-weight: bold; font-size: 0.8em; transition: 0.3s;
+        }
+        .phase-btn.active { border-color: var(--accent); color: var(--accent); background: #001a0d; }
+
+        .btn { padding: 16px; border-radius: 8px; border: none; cursor: pointer; text-transform: uppercase; width: 100%; font-weight: 900; }
+        .btn-gen { background: var(--primary); color: #000; }
+        .btn-pdf { background: #222; color: #fff; border: 1px solid #444; display: none; margin-top: 15px; }
+
+        /* Protocol Output */
+        .protocol-header { 
+            background: linear-gradient(90deg, #00d4ff15, #00ff8815); 
+            padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 5px solid var(--primary);
+        }
+        .patient-tag { font-size: 0.9em; color: var(--accent); margin-bottom: 5px; display: block; }
+        .protocol-header h2 { margin: 0; font-size: 1.2em; color: #fff; text-transform: uppercase; }
+
+        /* Warning Boxes */
+        .rule-box { background: #001a2e; border: 1px solid var(--primary); padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.9em; }
+        .rule-box b { color: var(--primary); }
+        
+        .red-flags { background: #2b0000; border: 1px solid var(--danger); padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 0.85em; }
+        .red-flags b { color: var(--danger); text-transform: uppercase; }
+
+        /* Exercise Cards */
+        .exercise-card { background: var(--card-bg); border-radius: 10px; padding: 20px; margin-top: 15px; border: 1px solid #222; page-break-inside: avoid; }
+        .ex-name { color: var(--primary); font-size: 1.1em; font-weight: 800; display: block; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .ex-exec { line-height: 1.6; color: #ccc; font-size: 0.95em; }
+        .ex-exec b { color: var(--accent); }
+
+        .params-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .p-box { background: #000; padding: 10px; text-align: center; border-radius: 6px; border: 1px solid #222; }
+        .p-box span { display: block; font-size: 0.65em; color: var(--primary); text-transform: uppercase; margin-bottom: 2px; }
+        .p-box strong { font-size: 1em; color: #fff; }
+
+        @media print {
+            .no-print, .btn-pdf { display: none !important; }
+            body { background: #fff; color: #000; padding: 0; }
+            .setup-box { display: none; }
+            .exercise-card, .protocol-header, .rule-box, .red-flags { border: 1px solid #ccc; color: #000; background: #fff !important; }
+            .ex-exec, .ex-name, .p-box strong { color: #000 !important; }
+            .p-box { border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>JELIAN <span style="color:var(--primary)">FT</span></h1>
+        <p>ESPECIALISTA EN REHABILITACIÓN DE HOMBRO</p>
+    </header>
+
+    <div class="no-print setup-box">
+        <label>Nombre del Paciente</label>
+        <input type="text" id="pName" placeholder="Ej. Juan Pérez">
+
+        <label>Patología Específica</label>
+        <select id="patSel">
+            <option value="TMR">1. Tendinopatía del Manguito Rotador</option>
+            <option value="BUR">2. Bursitis Subacromial</option>
+            <option value="SLA">3. Lesión de SLAP (Labrum)</option>
+            <option value="LUX">4. Luxación Glenohumeral (Inestabilidad)</option>
+            <option value="CON">5. Hombro Congelado (Capsulitis)</option>
+            <option value="IMD">6. Inestabilidad Multidireccional</option>
+            <option value="BCL">7. Tendinopatía Cabeza Larga Bíceps</option>
+            <option value="PIN">8. Pinzamiento (Impingement)</option>
+            <option value="FRA">10. Fractura de Clavícula</option>
+        </select>
+
+        <label>Fase Actual</label>
+        <div class="phase-grid">
+            <button class="phase-btn active" onclick="setPhase(1, this)">FASE I</button>
+            <button class="phase-btn" onclick="setPhase(2, this)">FASE II</button>
+            <button class="phase-btn" onclick="setPhase(3, this)">FASE III</button>
+            <button class="phase-btn" onclick="setPhase(4, this)">FASE IV</button>
+        </div>
+
+        <button class="btn btn-gen" onclick="render()">Generar Plan de Trabajo</button>
+        <button id="pdfBtn" class="btn btn-pdf" onclick="window.print()">📥 Descargar Protocolo PDF</button>
+    </div>
+
+    <div id="output"></div>
+</div>
+
+<script>
+let currentPhase = 1;
+
+function setPhase(p, btn) {
+    currentPhase = p;
+    document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+const DATA = {
+    TMR: {
+        t: "Tendinopatía del Manguito Rotador",
+        f1: [
+            ["Péndulos de Codman", "Inclina el tronco hacia adelante apoyándote en una mesa. Deja que el brazo afectado cuelgue relajado. Realiza círculos suaves y rítmicos. La gravedad ayuda a separar las superficies articulares, aliviando la presión sobre los tendones inflamados."],
+            ["Isométrico Rotación Externa", "Con el codo pegado al cuerpo a 90°, presiona el dorso de la mano contra la pared hacia afuera. Mantén la contracción 10 segundos. Activa el infraespinoso sin generar movimiento articular."],
+            ["Isométrico Abducción", "Brazo pegado al costado. Empuja lateralmente contra una superficie fija como si quisieras separar el brazo del cuerpo. Esto activa el supraespinoso en un rango seguro de 0°."],
+            ["Retracción Escapular", "Sentado erguido, junta los omóplatos hacia atrás y hacia abajo, como si quisieras guardarlos en los bolsillos traseros del pantalón. Mejora la base de apoyo del manguito."],
+            ["Isométrico Rotación Interna", "Codo a 90°. Coloca la palma de la mano contra la pared o el marco de una puerta y presiona hacia adentro. Fortalece el subescapular, estabilizador clave anterior."]
+        ],
+        f2: [
+            ["Caminata en Pared Frontal", "Coloca las yemas de los dedos en la pared a la altura de los ojos. 'Camina' hacia arriba lentamente hasta el punto antes del dolor. Mantén la postura sin arquear la espalda."],
+            ["Rotación Externa con Banda", "Codo anclado a la cintura (puedes usar una toalla pequeña bajo la axila). Rota la mano hacia afuera contra la resistencia elástica. Controla el regreso a la posición inicial."],
+            ["Serrato Punch", "Tumbado boca arriba con el brazo estirado al techo. Empuja la mano más arriba despegando la escápula de la colchoneta. Mantén el codo bloqueado. Vital para la dinámica escapulohumeral."],
+            ["Flexión Asistida con Bastón", "Sujeta un bastón con ambas manos. Usa el brazo sano para guiar al brazo afectado hacia adelante y arriba en un movimiento fluido y rítmico."],
+            ["Estiramiento Cápsula Posterior", "Cruza el brazo afectado frente al pecho. Con la otra mano, presiona suavemente el codo hacia el hombro opuesto. Sentirás tensión en la parte trasera del hombro."]
+        ],
+        f3: [
+            ["Excéntrico de Manguito", "Usa una banda elástica: realiza la rotación externa rápido (1 seg) y regresa a la posición inicial de forma muy lenta (5-6 seg). La carga excéntrica remodela el tejido tendinoso."],
+            ["Vuelos en V (Plano Escapular)", "Eleva pesas ligeras lateralmente pero desplazadas 30° hacia adelante (no lateral puro). Los pulgares deben mirar al techo. No sobrepases la altura de los hombros."],
+            ["Remo con Banda Elástica", "Ancla la banda a un punto fijo. Tira hacia tu abdomen con los codos pegados al tronco, concentrándote en apretar los omóplatos al final del recorrido."],
+            ["Abducción Horizontal", "Tumbado boca abajo en una cama. Deja colgar el brazo y elévalo lateralmente hasta la altura del tronco, formando una T. Fortalece deltoides posterior y romboides."],
+            ["Rotación Externa a 90°", "Brazo elevado lateralmente apoyado en una mesa. Rota el antebrazo hacia el techo contra la resistencia de una banda, trabajando el manguito en rangos funcionales."]
+        ],
+        f4: [
+            ["Lanzamiento de Balón Medicinal", "Frente a una pared, realiza lanzamientos rápidos de pecho. La velocidad entrena la capacidad del tendón para absorber y generar energía (pliometría)."],
+            ["Plancha sobre Manos", "Posición de flexión con brazos estirados. Mantén la espalda recta y empuja el suelo con fuerza para que las escápulas no se 'alumbren'."],
+            ["Estabilización Rítmica", "Brazo estirado al frente a 90°. Un compañero aplica toques rápidos en diferentes direcciones (arriba, abajo, lados) mientras intentas mantener el brazo inmóvil."],
+            ["Face-Pulls Rápidos", "Tira de una banda hacia tu frente, abriendo los codos hacia afuera. Realiza el movimiento con velocidad controlada para trabajar la reacción postural."],
+            ["Push-Ups Controlados", "Flexiones de brazos completas. Asegúrate de que los hombros no se encojan hacia las orejas y que el pecho baje de forma alineada."]
+        ]
+    },
+    BUR: {
+        t: "Bursitis Subacromial",
+        f1: [
+            ["Péndulos de Codman", "Movimiento gravitacional para descomprimir el espacio subacromial y permitir que la bursa se desinflame al reducir el roce."],
+            ["Respiración Diafragmática", "Inhala profundo expandiendo el abdomen. Ayuda a relajar la musculatura accesoria (trapecios) que suele estar hiperactiva por el dolor."],
+            ["Isométrico Rotación Externa", "Presión mínima contra pared. El objetivo es activar el manguito para 'centrar' la cabeza del húmero y que no choque con la bursa."],
+            ["Depresión Escapular Isométrica", "Sentado, empuja tus manos hacia abajo contra el asiento de la silla. Siente cómo tus hombros se alejan de tus orejas, abriendo el espacio articular."],
+            ["Movilidad Activa de Codo", "Dobla y estira el codo completamente. Mantiene la bomba muscular del brazo sin estresar la articulación del hombro."]
+        ],
+        f2: [
+            ["Estiramiento Pectoral Menor", "Apoya el antebrazo en el marco de una puerta y da un pequeño paso adelante. Un pectoral tenso inclina el hombro hacia adelante, cerrando el espacio de la bursa."],
+            ["Wall Slides en W", "Espalda apoyada en pared. Desliza los brazos hacia arriba manteniendo contacto con codos y muñecas. Trabaja la postura y la apertura subacromial."],
+            ["Bastón Flexión Asistida", "Elevación frontal del bastón guiada por el brazo sano. Detente justo antes de sentir cualquier 'pinchazo' en la zona superior."],
+            ["Deslizamientos en Mesa", "Sentado frente a una mesa con una toalla bajo la mano. Desliza la mano hacia adelante inclinando el tronco. Estira la zona sin carga de peso."],
+            ["Retracción Escapular Dinámica", "Movimiento de juntar y separar omóplatos de forma rítmica. Mejora la circulación en la zona y la conciencia postural."]
+        ],
+        f3: [
+            ["Depresión Escapular en Silla", "Intenta elevar los glúteos del asiento usando solo la fuerza de tus brazos hacia abajo. Fortalece los depresores del húmero."],
+            ["Face-Pulls con Banda", "Tira de la banda hacia tu rostro. Este ejercicio es vital para fortalecer los músculos que mantienen el hombro en una posición 'abierta'."],
+            ["Remo Bajo Controlado", "Tracción con banda elástica. Enfócate en que el movimiento nazca de la espalda y no solo de los brazos."],
+            ["Rotación Externa con Banda", "Fortalecimiento de los rotadores externos para asegurar que la cabeza del húmero se deslice correctamente durante la elevación del brazo."],
+            ["Serrato Anterior en Pared", "Apoya antebrazos en la pared y empuja tu cuerpo hacia atrás. Activa el serrato, que es el músculo que pega la escápula a las costillas."]
+        ],
+        f4: [
+            ["Push-Ups contra Pared", "Flexiones de pie contra la pared. Es el inicio de la carga de peso real, controlando que no haya dolor en la fase más profunda."],
+            ["Estabilización Rítmica", "Resiste perturbaciones rápidas en ángulos de 45° y 90°. Entrena al cerebro para proteger la bursa ante movimientos inesperados."],
+            ["Plancha Dinámica", "En posición de plancha sobre manos, realiza pequeños toques al hombro contrario sin que tu cuerpo se balancee."],
+            ["Lanzamientos Bajos", "Lanza una pelota ligera hacia el suelo y atrápala. Trabaja la coordinación y la fuerza en el plano inferior del hombro."],
+            ["Vuelos Laterales Controlados", "Elevación de pesas mínimas en plano escapular (30° hacia adelante). La bajada debe ser extremadamente lenta (4 segundos)."]
+        ]
+    },
+    SLA: {
+        t: "Lesión de SLAP (Labrum)",
+        f1: [
+            ["Isométrico de Bíceps", "Codo a 90°. Presiona hacia arriba contra resistencia pero sin mover el hombro. El bíceps tira del labrum, por lo que este ejercicio debe ser suave."],
+            ["Péndulos de Codman", "Relajación capsular. Permite que la cabeza del húmero 'flote' en la articulación, reduciendo la fricción sobre el labrum superior."],
+            ["Isométrico Rotación Interna", "Presiona la mano contra una superficie hacia tu abdomen. Estabiliza la parte anterior de la articulación glenohumeral."],
+            ["Isométrico de Tríceps", "Brazo estirado. Presiona la mano hacia atrás contra la pared. El tríceps ayuda a dar estabilidad inferior al labrum."],
+            ["Shrugs Escapulares", "Sube y baja los hombros lentamente. Mantiene la salud de la articulación escapulotorácica sin traccionar el bíceps."]
+        ],
+        f2: [
+            ["Reloj en Pared", "Mano apoyada en pared. Realiza movimientos rápidos imitando las horas del reloj. Mejora la estabilidad dinámica del labrum."],
+            ["Propiocepción con Pelota", "Presiona una pelota pequeña contra la pared con la palma y realiza círculos. La compresión controlada estabiliza la articulación."],
+            ["Serrato Punch", "Tumbado, empuja una pesa de 1kg hacia el techo despegando el hombro. Fortalece el apoyo escapular del labrum."],
+            ["Caminata de Dedos Lateral", "Sube por la pared de lado. Evita compensar inclinando el cuello o el tronco."],
+            ["Remo Sentado Corto", "Usa una banda elástica. Tira hacia atrás pero detén el codo cuando llegue a la línea del cuerpo. No fuerces la extensión."]
+        ],
+        f3: [
+            ["Remo Bajo Progresivo", "Tracción con banda elástica con mayor resistencia. Fortalece la musculatura posterior para proteger el labrum superior."],
+            ["Y-W Raises", "Tumbado boca abajo. Eleva los brazos formando una Y (45°) y luego una W (codos doblados). Fortalece trapecio y romboides."],
+            ["Rotación Externa a 90°", "Codo elevado lateralmente. Rota la mano hacia el techo. Este ejercicio carga el labrum, por lo que debe hacerse con control."],
+            ["Face-Pulls Técnicos", "Tira de la banda hacia tu frente. Ayuda a centrar la cabeza del húmero hacia atrás, lejos de la lesión del labrum frontal."],
+            ["Flexión con Banda Elástica", "Eleva el brazo al frente contra banda. Enfócate en que el hombro no 'salte' hacia adelante durante el esfuerzo."]
+        ],
+        f4: [
+            ["Bodyblade (Vibraciones)", "Usa una barra flexible o agita la mano rápidamente. Genera micro-contracciones que estabilizan el labrum ante vibraciones."],
+            ["Fondos de Tríceps", "Carga compresiva controlada en una silla estable. Fortalece la capacidad del hombro para soportar peso."],
+            ["Estabilización Rítmica", "Resiste empujes manuales en todas direcciones con el brazo elevado a diferentes alturas."],
+            ["Pliometría en Pared", "Flexiones rápidas contra pared despegando las manos ligeramente. Entrena la reacción rápida del labrum."],
+            ["Lanzamientos Medicinales", "Lanzamientos de pelota pequeña por encima de la cabeza, reintegrando el gesto de lanzamiento o carga."]
+        ]
+    },
+    LUX: {
+        t: "Luxación Glenohumeral (Inestabilidad)",
+        f1: [
+            ["Isométrico Rotación Interna", "Clave absoluta para la estabilidad anterior. Presiona la mano hacia tu ombligo con fuerza moderada durante 10 segundos."],
+            ["Isométrico Rotación Externa", "Presiona hacia afuera contra la pared. El manguito posterior debe fortalecerse para actuar como freno secundario."],
+            ["Isométrico de Aducción", "Coloca una almohada entre el brazo y el tronco. Apriétala con fuerza. Esto activa los músculos que 'cierran' la articulación."],
+            ["Retracción Escapular", "Asegura la base de la articulación. Si la escápula es inestable, el hombro se luxará con mayor facilidad."],
+            ["Handgrip (Agarre)", "Aprieta una pelota de goma. Existe una conexión neurológica: a mayor fuerza de agarre, mayor estabilidad refleja en el hombro."]
+        ],
+        f2: [
+            ["Caminata de Dedos Lateral", "Sube por la pared lateralmente. El control es más importante que la altura en este ejercicio."],
+            ["Serrato Anterior en Pared", "Empuja la pared con brazos estirados, sintiendo cómo tus omóplatos se separan. Estabiliza el plano frontal."],
+            ["Isométrico Abducción 30°", "Mantén el brazo separado unos 30 cm del cuerpo contra una pared. Trabaja el deltoides sin riesgo de luxación."],
+            ["Propiocepción en Espejo", "Frente al espejo, trata de colocar el brazo lesionado exactamente en el mismo ángulo que el brazo sano con ojos cerrados."],
+            ["Rotación Interna con Banda", "Fortalece el subescapular con banda elástica. Realiza 3 series de 15 repeticiones con control total."]
+        ],
+        f3: [
+            ["Rotación Externa Decúbito Lateral", "Tumbado de lado, eleva una pesa hacia el techo. Fortalece el infraespinoso, el principal guardián posterior del hombro."],
+            ["Flexiones contra Mesa", "Apoya manos en mesa firme. El peso corporal estimula los mecanorreceptores que mantienen el hombro en su sitio."],
+            ["Monster Walk de Brazos", "Banda elástica entre muñecas. Mueve las manos por la pared en pequeños pasos laterales sin que la banda se afloje."],
+            ["Remo con Banda Elástica", "Fortalecimiento de romboides y trapecio. Una espalda fuerte es el mejor seguro contra una luxación."],
+            ["Plancha Frontal", "Mantén la posición de tabla. La carga constante entrena la resistencia de los ligamentos y músculos estabilizadores."]
+        ],
+        f4: [
+            ["Bear Crawl (Paso de Oso)", "Gatea por el suelo sin apoyar rodillas. Es el ejercicio definitivo de estabilidad en carga para hombro."],
+            ["Plancha sobre Bosu", "Apoya manos en superficie inestable. Obliga al hombro a realizar micro-ajustes constantes para no luxarse."],
+            ["Atrapado de Pelota", "Un compañero lanza una pelota y debes atraparla en diferentes ángulos. Entrena la reacción de defensa del hombro."],
+            ["Pliometría en Suelo", "Pequeños saltos con las manos desde posición de flexión. Solo para fases finales de retorno deportivo."],
+            ["Estabilización Reactiva", "Mantén una banda tensa mientras otra persona la agita. Debes bloquear el hombro ante la perturbación."]
+        ]
+    },
+    CON: {
+        t: "Hombro Congelado (Capsulitis)",
+        f1: [
+            ["Péndulos con Pesa (0.5kg)", "La pesa genera una tracción constante que ayuda a elongar la cápsula articular retraída."],
+            ["Movilidad de Mano y Codo", "Mueve activamente dedos y codo. En la capsulitis, el desuso puede atrofiar rápidamente todo el brazo."],
+            ["Isométricos Muy Suaves", "Presiones mínimas contra pared. Mantienen la conexión nerviosa con los músculos sin irritar la cápsula rígida."],
+            ["Respiración ante el Dolor", "Inhala profundo durante los estiramientos. El dolor de la capsulitis es intenso; el control respiratorio baja la guardia muscular."],
+            ["Movilidad Escapular Pasiva", "Usa la mano sana para mover el omóplato del brazo afectado hacia arriba y abajo para mantener su juego articular."]
+        ],
+        f2: [
+            ["Bastón en Flexión", "Tumbado boca arriba. Usa el bastón para elevar ambos brazos. El brazo sano 'fuerza' suavemente el rango final del afectado."],
+            ["Bastón Rotación Externa", "Codos pegados. El bastón empuja la mano afectada hacia afuera. La rotación externa es lo que más se pierde en esta patología."],
+            ["Estiramiento Cápsula Posterior", "Cruza el brazo y presiona el codo. Mantén 30 segundos. La rigidez posterior empuja el húmero hacia arriba."],
+            ["Caminata en Pared Frontal", "Busca ganar 1 cm cada día. La constancia es más efectiva que la intensidad en el hombro congelado."],
+            ["Estiramiento Axilar en Mesa", "Apoya el brazo en una mesa alta y baja el cuerpo lentamente. Estira la parte inferior de la cápsula (el receso axilar)."]
+        ],
+        f3: [
+            ["Toalla tras la Espalda", "El brazo sano arriba tira de la toalla para elevar la mano afectada que está atrás (Rotación Interna)."],
+            ["Uso de Poleas", "Pasa una cuerda por una barra alta. El brazo sano tira hacia abajo para que el afectado suba pasivamente."],
+            ["Estiramiento en Esquina", "Coloca antebrazos en un rincón y avanza el pecho. Estira la cápsula anterior y los pectorales."],
+            ["Sleeper Stretch", "Tumbado sobre el lado afectado, dobla el codo y empuja la muñeca hacia el suelo suavemente para ganar rotación interna."],
+            ["Fortalecimiento con Banda", "Inicia ejercicios de fuerza muy ligeros solo en los rangos de movimiento que ya has recuperado."]
+        ],
+        f4: [
+            ["Movilidad Rítmica Global", "Realiza círculos amplios (natación fuera del agua). Reintegra el hombro al movimiento fluido del cuerpo."],
+            ["Vuelos en V (30°)", "Eleva pesas ligeras en plano escapular para despertar al deltoides después de meses de rigidez."],
+            ["Remo con Banda", "Fortalece la espalda para corregir la postura encorvada que suele adoptar el paciente con capsulitis."],
+            ["Flexiones en Pared", "Carga de peso progresiva para recuperar la confianza en la resistencia de la articulación."],
+            ["Face-Pulls", "Tira de la banda hacia la cara. Asegura que los rotadores externos mantengan la movilidad ganada a largo plazo."]
+        ]
+    },
+    IMD: {
+        t: "Inestabilidad Multidireccional",
+        f1: [
+            ["Isométricos 4 Cuadrantes", "Presiona adelante, atrás, adentro y afuera. Mantén cada una 10s. Estabiliza el hombro en todas las direcciones."],
+            ["Posición de Estatua", "Mantén el brazo al frente sin moverlo. El cerebro debe aprender a centrar la cabeza humeral de forma estática."],
+            ["Retracción Escapular", "Una escápula firme previene que el hombro 'baile' en la articulación durante los movimientos."],
+            ["Isométrico de Tríceps", "Extensión contra pared. Crucial para dar soporte a la parte inferior de la cápsula articular."],
+            ["Control Postural frente a Espejo", "Corrige la posición de los hombros. Evita que el húmero caiga hacia adelante o abajo (signo del surco)."]
+        ],
+        f2: [
+            ["Sostener Pesa a 90°", "Mantén una mancuerna ligera al frente. El peso 'tracciona' el hombro y tus músculos deben resistirlo (propiocepción)."],
+            ["Flexiones en Pared", "Apoya las manos y haz flexiones cortas. Entrena la co-contracción de todos los músculos del hombro."],
+            ["Retracción con Banda", "Junta los omóplatos mientras estiras una banda elástica frente a ti. Estabiliza el plano posterior."],
+            ["Serrato Punch con Carga", "Tumbado con una pesa, empuja hacia el techo. Este ejercicio 'pega' el húmero y la escápula al tronco."],
+            ["Rotación Int/Ext con Banda", "Ejercicios rítmicos de rotación para que el manguito rotador trabaje como una sola unidad estabilizadora."]
+        ],
+        f3: [
+            ["Elevación Frontal con Banda", "Sube el brazo contra resistencia y bájalo muy lento. El control en la bajada es lo que evita la inestabilidad."],
+            ["Abducción Horizontal", "Abre los brazos lateralmente con banda elástica. Fortalece los estabilizadores posteriores."],
+            ["Remo con Banda Elástica", "Tracción bimanual. Enfócate en la sensación de que el hombro está 'encajado' en todo momento."],
+            ["Plancha sobre Manos", "Mantén la posición. Intenta levantar una mano un centímetro sin que el otro hombro se mueva."],
+            ["Vuelos en V (Plano Escapular)", "Eleva pesas a 30° adelante. Sube hasta 90° y baja con un control absoluto del movimiento."]
+        ],
+        f4: [
+            ["Push-Ups sobre Balón Medicinal", "Coloca las manos sobre el balón para realizar la flexión. Máximo reto de estabilidad multidireccional."],
+            ["Estabilización Rítmica Rápida", "Mantén el brazo en alto mientras alguien aplica tirones rápidos a una banda que sostienes."],
+            ["Pliometría en Pared", "Empujes explosivos que obligan al hombro a estabilizarse al impactar de nuevo contra la pared."],
+            ["Bear Crawl Lateral", "Gateo lateral. Obliga a los hombros a soportar peso mientras se mueven en diferentes planos."],
+            ["Lanzamientos Reactivos", "Atrapa y lanza una pelota en ángulos inesperados para entrenar la respuesta refleja del hombro."]
+        ]
+    },
+    BCL: {
+        t: "Tendinopatía Cabeza Larga Bíceps",
+        f1: [
+            ["Estiramiento Suave de Bíceps", "Mano en pared con brazo estirado atrás. Gira el cuerpo lejos del brazo para elongar el tendón anterior."],
+            ["Isométrico de Bíceps", "Codo a 90°. Presiona hacia arriba contra tu mano sana. No debe haber dolor en el frente del hombro."],
+            ["Péndulos de Codman", "Relajación del surco bicipital. Ayuda a que el tendón 'descanse' de la fricción constante con el hueso."],
+            ["Isométrico Rotación Externa", "Fortalecer los rotadores externos ayuda a centrar el húmero, evitando que el bíceps trabaje en exceso."],
+            ["Crioterapia Activa", "Aplica hielo en el canal del bíceps (frente del hombro) mientras realizas giros muy suaves de la muñeca."]
+        ],
+        f2: [
+            ["Remo Sentado con Banda", "Tira hacia atrás abriendo el pecho. Al mejorar la postura, el bíceps deja de estar pinzado por el acromion."],
+            ["Extensión de Hombro con Banda", "Lleva el brazo estirado hacia atrás contra la banda. Fortalece el tríceps y deltoides posterior."],
+            ["Supinación Resistida", "Gira la palma hacia el techo contra la resistencia de una banda. El bíceps ayuda en este giro (es su función distal)."],
+            ["Retracción Escapular", "Abre el espacio anterior del hombro mediante la corrección de la posición de los omóplatos."],
+            ["Flexión de Hombro Asistida", "Sube el brazo al frente con ayuda de un bastón. El bíceps no debe ser el motor principal del movimiento aún."]
+        ],
+        f3: [
+            ["Curl de Bíceps Excéntrico", "Sube la mancuerna con ayuda de la otra mano. Suéltala y baja el brazo afectado en 6 segundos exactos."],
+            ["Elevación Frontal con Banda (60°)", "Sube el brazo solo hasta la altura del pecho. Evita los rangos altos donde el tendón choca con el hueso."],
+            ["Face-Pulls con Banda", "Tira hacia la frente. Fortalecer la parte trasera del hombro es el mejor tratamiento para el bíceps anterior."],
+            ["Isométrico Flexión a 90°", "Sostén una mancuerna ligera con el brazo estirado al frente por 20 segundos. Resistencia estática del tendón."],
+            ["Remo Alto con Codos Abiertos", "Tira de la banda con los codos a la altura de los hombros. Trabaja la cadena posterior del brazo."]
+        ],
+        f4: [
+            ["Lanzamientos Bajos de Balón", "Desde la cintura, lanza un balón al suelo. Trabaja la capacidad explosiva de la cabeza larga del bíceps."],
+            ["Dominadas Asistidas", "Usa una máquina o banda para realizar tracciones verticales. Carga el tendón en estiramiento de forma segura."],
+            ["Pliometría Suave", "Flexiones cortas contra mesa con un pequeño impulso. Entrena la elasticidad del tejido tendinoso."],
+            ["Estabilización Rítmica", "Resiste empujes rápidos en el antebrazo mientras mantienes el hombro estable a 90°."],
+            ["Push-Ups (Flexiones)", "Realiza flexiones completas en el suelo, controlando que los hombros no se 'vuelquen' hacia adelante al bajar."]
+        ]
+    },
+    PIN: {
+        t: "Pinzamiento (Impingement)",
+        f1: [
+            ["Depresión Escapular", "Apoya manos en mesa y empuja para 'crecer' hacia arriba. Baja los hombros activamente para abrir el espacio."],
+            ["Péndulos de Codman", "Crea una decoaptación (separación) articular que detiene el choque mecánico del tendón con el acromion."],
+            ["Isométrico Rotación Externa", "Fortalecer el infraespinoso ayuda a que la cabeza del húmero se deslice hacia abajo al elevar el brazo."],
+            ["Estiramiento de Cuello (Trapecio)", "Lleva la oreja al hombro contrario. Un cuello relajado permite que la escápula se mueva mejor."],
+            ["Movilidad Escapular Rítmica", "Círculos de hombros hacia atrás. Mejora la lubricación y el flujo sanguíneo en la zona subacromial."]
+        ],
+        f2: [
+            ["Estiramiento Pectoral en Puerta", "Abre el pecho para evitar que los hombros se enrollen hacia adelante, lo cual causa el pinzamiento."],
+            ["Wall Slides en W", "Deslizamientos en pared. Es el ejercicio 'oro' para reeducar la postura y el ritmo del hombro."],
+            ["Serrato Anterior en Pared", "Empuja la pared redondeando ligeramente la espalda. Mantiene la escápula pegada y estable."],
+            ["Estiramiento Cápsula Posterior", "Cruza el brazo y presiona. Si la cápsula trasera está tensa, empuja el hueso hacia arriba causando pinzamiento."],
+            ["Remo Bajo con Banda", "Tira hacia tu cadera. Enfócate en bajar los hombros mientras traes los codos hacia atrás."]
+        ],
+        f3: [
+            ["Face-Pulls con Banda", "Tira hacia tus ojos. Fortalece los músculos que 'abren' el hombro y corrigen el pinzamiento postural."],
+            ["Vuelos en V (Plano Escapular)", "Eleva pesas a 30° hacia adelante. Nunca pases de la altura del hombro (90°) en esta fase."],
+            ["Plancha Dinámica sobre Manos", "Mantén la tabla y toca el hombro opuesto. Estabilidad escapular bajo carga de peso real."],
+            ["Rotación Externa con Banda", "Usa una toalla bajo el codo para asegurar que el húmero esté en la posición mecánica ideal."],
+            ["Remo Alto Escapular", "Tira de la banda con codos altos. Concéntrate en el movimiento de 'exprimir' tus omóplatos."]
+        ],
+        f4: [
+            ["Pliometría en Pared", "Flexiones explosivas en pared. Enseña al hombro a estabilizarse rápidamente tras un impacto."],
+            ["Golpeo de Balón en Pared", "Sostén un balón contra la pared a la altura de la frente y realiza círculos rápidos y pequeños."],
+            ["Estabilización Rítmica", "Brazo a 90° lateral; resiste empujes que intenten cerrar o abrir tu brazo inesperadamente."],
+            ["Push-Ups sobre Bosu", "Flexiones sobre base inestable. Obliga a todos los músculos a trabajar para evitar el pinzamiento."],
+            ["Lanzamientos de Pelota", "Gestos de lanzamiento por encima de la cabeza, priorizando la apertura del pecho y el control de la bajada."]
+        ]
+    },
+    FRA: {
+        t: "Fractura de Clavícula",
+        f1: [
+            ["Círculos Escapulares", "Mueve solo los omóplatos. El brazo debe colgar quieto para no estresar el callo óseo en formación."],
+            ["Flexión Activa de Codo", "Dobla y estira el codo. Evita que el brazo se vuelva rígido por el uso prolongado del cabestrillo."],
+            ["Apretar Pelota de Goma", "Mejora la circulación de todo el brazo y mantiene el tono muscular del antebrazo y mano."],
+            ["Movilidad Suave de Cuello", "Realiza giros e inclinaciones de cabeza. Evita contracturas en los músculos que se anclan en la clavícula."],
+            ["Péndulos (Solo si hay permiso)", "Si el médico lo autoriza, realiza micro-péndulos para mantener la movilidad de la cápsula del hombro."]
+        ],
+        f2: [
+            ["Péndulos de Codman", "Círculos más amplios. El movimiento debe venir de tu cuerpo balanceándose, no del hombro mismo."],
+            ["Retracción Escapular Sentado", "Lleva los hombros hacia atrás con mucha suavidad. Ayuda a alinear la clavícula durante su curación."],
+            ["Isométrico Rotación Externa", "Codo pegado al cuerpo. Presiona mínimamente hacia afuera. Empieza a despertar los músculos sin mover el hueso."],
+            ["Elevación Asistida de Manos", "Entrelaza las manos al frente. Usa el brazo sano para subir ambos brazos hasta la altura del ombligo."],
+            ["Bastón: Movilidad Lateral", "Mueve un bastón de lado a lado suavemente, como si estuvieras remando de forma muy superficial."]
+        ],
+        f3: [
+            ["Flexiones en Pared", "Apoya manos y haz flexiones suaves. Es la primera carga de peso controlada sobre la clavícula consolidada."],
+            ["Fortalecimiento con Banda", "Rotaciones internas y externas con banda de baja resistencia. Recupera la fuerza del manguito."],
+            ["Remo con Banda Elástica", "Tira hacia atrás. Fortalecer los romboides quita presión mecánica directa sobre la clavícula."],
+            ["Isométrico de Abducción 45°", "Empuja lateralmente contra la pared con el brazo un poco separado. Activa el deltoides medio."],
+            ["Wall Slides (Deslizamientos)", "Sube las manos por la pared. Si sientes tensión excesiva en la clavícula, detente y baja un poco."]
+        ],
+        f4: [
+            ["Push-Ups en Suelo", "Flexiones completas. La clavícula ya debe soportar tu peso total sin molestias significativas."],
+            ["Bastón: Movilidad Completa", "Lleva el bastón por encima y por detrás de la cabeza para recuperar el rango de movimiento total."],
+            ["Estabilización Rítmica", "Resiste perturbaciones aplicadas al brazo estirado. Recupera la confianza en la estabilidad ósea."],
+            ["Plancha sobre Manos", "Mantén la posición de tabla durante 45-60 segundos. Trabaja la resistencia a la compresión del hueso."],
+            ["Lanzamientos Suaves", "Lanza y atrapa una pelota ligera. Reintegra la coordinación brazo-clavícula en movimientos rápidos."]
+        ]
+    }
+};
+
+function render() {
+    const val = document.getElementById('patSel').value;
+    const name = document.getElementById('pName').value || "Paciente";
+    const out = document.getElementById('output');
+    const pdfBtn = document.getElementById('pdfBtn');
+    
+    const p = DATA[val];
+    const faseEx = p[`f${currentPhase}`];
+    const fasesText = ["I (Protección Inicial)", "II (Movilidad Controlada)", "III (Fortalecimiento)", "IV (Retorno Funcional)"];
+
+    out.innerHTML = `
+        <div class="protocol-header">
+            <span class="patient-tag">PLAN PARA: ${name.toUpperCase()}</span>
+            <h2>${p.t}</h2>
+            <p style="margin:5px 0 0; font-size:0.9em;">FASE: ${fasesText[currentPhase-1]}</p>
+        </div>
+
+        <div class="rule-box">
+            <b>⚠️ REGLA DEL DOLOR (0-10):</b><br>
+            El ejercicio debe ser <b>indoloro</b> o con una molestia máxima de <b>3/10</b>. 
+            Si el dolor es punzante o aumenta al terminar, detente y reduce la intensidad.
+        </div>
+    `;
+
+    faseEx.forEach((ex, i) => {
+        out.innerHTML += `
+            <div class="exercise-card">
+                <span class="ex-name">${i+1}. ${ex[0]}</span>
+                <div class="ex-exec"><b>Técnica:</b> ${ex[1]}</div>
+                <div class="params-grid">
+                    <div class="p-box"><span>Series</span><strong>3</strong></div>
+                    <div class="p-box"><span>Reps</span><strong>12 - 15</strong></div>
+                    <div class="p-box"><span>Descanso</span><strong>60s</strong></div>
+                </div>
+            </div>
+        `;
+    });
+
+    out.innerHTML += `
+        <div class="red-flags">
+            <b>🚨 SEÑALES DE ALERTA (Banderas Rojas):</b><br>
+            Consulta a tu fisioterapeuta o médico de inmediato si presentas:<br>
+            • Dolor nocturno que no te deja dormir.<br>
+            • Hormigueo o pérdida de sensibilidad total en la mano.<br>
+            • Fiebre injustificada o inflamación extrema con calor local.<br>
+            • Pérdida repentina de la fuerza (no puedes levantar el brazo ni un poco).
+        </div>
+        <p style="text-align:center; font-size:0.7em; color:#555; margin-top:30px;">
+            Jelian FT System v3.0 - Especialista en Hombro
+        </p>
+    `;
+    
+    pdfBtn.style.display = 'block';
+    window.scrollTo({ top: out.offsetTop - 20, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
